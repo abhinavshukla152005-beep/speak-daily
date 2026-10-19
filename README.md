@@ -4,6 +4,10 @@ Two minutes of English speaking practice, every day. Pick the daily topic,
 record yourself, and get instant feedback on pace, filler words, vocabulary
 variety and fluency — plus a replay of your recording and your recent history.
 
+## Preview
+
+![SpeakDaily](assets/app.png)
+
 ## Stack
 
 - Vite + React
