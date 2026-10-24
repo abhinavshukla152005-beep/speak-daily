@@ -4,6 +4,9 @@ Two minutes of English speaking practice, every day. Pick the daily topic,
 record yourself, and get instant feedback on pace, filler words, vocabulary
 variety and fluency — plus a replay of your recording and your recent history.
 
+**Live demo:** https://abhinavshukla152005-beep.github.io/speak-daily/ — click
+"Try the 2-minute demo" to use it without an account (demo runs are not saved).
+
 ## Preview
 
 ![SpeakDaily](assets/app.png)
