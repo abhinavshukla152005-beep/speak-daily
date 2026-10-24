@@ -8,7 +8,7 @@ const GOAL_SECONDS = 120
 const SpeechRecognitionImpl =
   typeof window !== 'undefined' && (window.SpeechRecognition || window.webkitSpeechRecognition)
 
-export default function Practice({ user, onSignOut }) {
+export default function Practice({ user, demo = false, onSignOut, onExitDemo }) {
   const [phase, setPhase] = useState('idle') // idle | recording | review
   const [secondsLeft, setSecondsLeft] = useState(GOAL_SECONDS)
   const [transcript, setTranscript] = useState('')
@@ -26,12 +26,13 @@ export default function Practice({ user, onSignOut }) {
   const streamRef = useRef(null)
 
   useEffect(() => {
-    loadHistory()
+    if (!demo) loadHistory()
     return () => stopEverything()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   async function loadHistory() {
+    if (demo) return
     const { data } = await supabase
       .from('sessions')
       .select('id, topic, score, word_count, duration_seconds, created_at')
@@ -132,6 +133,8 @@ export default function Practice({ user, onSignOut }) {
       : null
     setResult({ analysis, audioUrl, text, elapsed })
 
+    if (demo) return
+
     const { error: dbErr } = await supabase.from('sessions').insert({
       user_id: user.id,
       topic: topicOfToday(),
@@ -157,11 +160,19 @@ export default function Practice({ user, onSignOut }) {
     <div className="page">
       <header className="topbar">
         <span className="brand">SpeakDaily</span>
-        <span className="muted">Hi, {user.user_metadata?.full_name || user.email.split('@')[0]}</span>
-        <button className="btn ghost" onClick={onSignOut}>Sign out</button>
+        <span className="muted">{demo ? 'Demo mode' : `Hi, ${user.user_metadata?.full_name || user.email.split('@')[0]}`}</span>
+        <button className="btn ghost" onClick={demo ? onExitDemo : onSignOut}>
+          {demo ? 'Sign in to save' : 'Sign out'}
+        </button>
       </header>
 
       <main className="stack">
+        {demo && (
+          <p className="banner">
+            You&rsquo;re trying the demo. Feedback is calculated in your browser and nothing is uploaded.{' '}
+            <button className="linkbtn" onClick={onExitDemo}>Create an account</button> to save sessions.
+          </p>
+        )}
         <section className="card topic-card">
           <span className="label">Today&rsquo;s topic</span>
           <h2>{topic}</h2>
@@ -193,6 +204,12 @@ export default function Practice({ user, onSignOut }) {
                 </div>
                 {result.audioUrl && <audio controls src={result.audioUrl} className="player" />}
                 {result.text && <p className="transcript">“{result.text}”</p>}
+                {demo && (
+                  <p className="muted note">
+                    This run wasn&rsquo;t saved — demo sessions stay in your browser.{' '}
+                    <button className="linkbtn" onClick={onExitDemo}>Create an account</button> to keep your history.
+                  </p>
+                )}
                 <button className="btn primary" onClick={() => { setResult(null); setPhase('idle') }}>
                   Practise again
                 </button>
@@ -211,7 +228,12 @@ export default function Practice({ user, onSignOut }) {
 
         <section className="card">
           <h3>Recent practice</h3>
-          {history.length === 0 ? (
+          {demo ? (
+            <p className="muted">
+              Demo sessions aren&rsquo;t saved.{' '}
+              <button className="linkbtn" onClick={onExitDemo}>Create an account</button> to keep your history and streak.
+            </p>
+          ) : history.length === 0 ? (
             <p className="muted">No sessions saved yet. Finish one practice round to start your streak.</p>
           ) : (
             <ul className="history">

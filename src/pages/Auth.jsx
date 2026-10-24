@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabase'
 
-export default function Auth() {
+export default function Auth({ onDemo }) {
   const [mode, setMode] = useState('login')
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -62,6 +62,11 @@ export default function Auth() {
             {mode === 'signup' ? 'Sign in' : 'Create an account'}
           </button>
         </p>
+        <div className="divider"><span>or</span></div>
+        <button type="button" className="btn ghost block" onClick={onDemo}>
+          Try the 2-minute demo
+        </button>
+        <p className="muted center note">No account needed. Your recording and feedback stay in your browser.</p>
       </form>
     </div>
   )
